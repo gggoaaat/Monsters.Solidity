@@ -4,9 +4,9 @@ require("@nomiclabs/hardhat-etherscan");
 require("hardhat-gas-reporter");
 
 
-const ETHERSCAN_API_KEY = 'YEURETDAHFHECCTA2F72U7K2R7F3K1F9PV' //'Y11CP9JA94G663WGI23GB2VNR932VSGMXP' //process.env.ETHERSCAN_API_KEY
-const PROJECT_ID = 'fadf000024204bd998db9b39531e6572' //process.env.PROJECT_ID
-const PK = '009f83b09a5faf68ce4fe9bed00f026026a3ae3ef59ff13e6a7ec9673bbdb717' //process.env.PK
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
+const PROJECT_ID = process.env.PROJECT_ID
+const PK = process.env.PK
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -35,7 +35,7 @@ module.exports = {
     }
   },
   gasReporter: {
-    //enabled: (process.env.REPORT_GAS) ? true : false,
+    enabled: (process.env.REPORT_GAS) ? true : false,
     currency: 'USD',
     token: 'ETH',
     coinmarketcap: process.env.CMCAPI, //'00a4f49a-2c1b-4315-8209-0599ae260257',
@@ -46,7 +46,7 @@ module.exports = {
     reporter: 'eth-gas-reporter',
     //reporterOptions : {  } // See options below
   },
-  //defaultNetwork: "hardhat",
+  // defaultNetwork: "hardhat",
   // defaultNetwork: "rinkeby",
   // etherscan: {
   //   apiKey: ETHERSCAN_API_KEY,

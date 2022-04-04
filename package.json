@@ -20,6 +20,8 @@
     "hardhat-gas-reporter": "^1.0.7"
   },
   "dependencies": {
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "ethereumjs-utils": "^5.2.5",
+    "winston": "^3.6.0"
   }
 }

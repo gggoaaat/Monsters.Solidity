@@ -9,10 +9,26 @@ let message2 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 let messageHash1 = ethers.utils.solidityKeccak256(['string'], [message1]);
 let messageHash2 = ethers.utils.solidityKeccak256(['string'], [message2]);
 
+let couponExample = [{
+    r: '0xaba336e1347616cd15fd44720fd4bb9faaf3e3cf4fe653915b4dc57229264807',
+    s: '0x17eb41b6419bcd8f02e80ee9731a62eb4f073a227c088ab5010da8349eb350b3',
+    v: 27
+}, {
+    r: '0x76cb241964b3b20ef678aeaeccbbca0a0fba271e03c4cbf1bee3b7bcac0f1c28',
+    s: '0x50499e74dc33a7d2e7eaa2f151d68e8db176fefdd266dad2c7908893fc151dc1',
+    v: 27
+}]
+
 if (true == true)
     describe("SuitsOnSuits", function () {
         let buyer, owner, hashValue;
+
+        // beforeEach(async function () {
+        //     await hre.network.provider.send("hardhat_reset")
+        //   })
+        
         before(async () => {
+            
             const [owner, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
             console.log("Owner Address: " + owner.address);
             console.log("Owner Address: " + _1.address);
@@ -22,11 +38,40 @@ if (true == true)
             const MonstersCommunity = await ethers.getContractFactory("SuitsOnSuits");
             currentToken = await MonstersCommunity.deploy(
                 '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+                '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a',
                 'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/images/',
-                'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/assets/reveal.json');
+                'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/assets/reveal.json',
+                [
+                    ethers.utils.getAddress('0x9C3f261e2cc4C88DfaC56A5B46cdbf767eE2f231'), 
+                    ethers.utils.getAddress('0x608328a456D3205fFBAcD2E00AaFE2eE2471dd17'),
+                    ethers.utils.getAddress('0x9EF4c075E19ed467813aCA21A23c6aF309B6D236'),
+                    ethers.utils.getAddress('0xf886B127d4E381E7619d2Af1617476fef0d04F8c'),
+                    ethers.utils.getAddress('0x36Fa3E52D58A7401Be46353F50667FBf931e4F42'),
+                    ethers.utils.getAddress('0x96353d42d88e8a9945cdc8308592f4853f39e114'),
+                    ethers.utils.getAddress('0x109094D990aDbdfC97c5c9Ea5F5bcE54f4EB1BDB'),
+                    ethers.utils.getAddress('0x4aC5d838Cc15686f45fB8BAF54e519B8388914f0'),
+                    ethers.utils.getAddress('0x27a25E7d890F656cD508173A9E16369B5A29108C'),
+                    ethers.utils.getAddress('0xC7b8822E1eEAd4Cd1Fb3ae33f34Daf694DBA6B23'),
+                    ethers.utils.getAddress('0x317C315056fF37F9A74256Ff5345a95915673B88'),
+                    ethers.utils.getAddress('0x5d2eCEDDc74D1675Ce6934AB364b01799F40F644')
+                ],
+                [
+                    30, 
+                    25,
+                    10,
+                    7,
+                    7,
+                    3,
+                    2,
+                    3,
+                    3,
+                    1,
+                    8,
+                    1
+                ]);
             await currentToken.deployed();
 
-            await currentToken.toggleCooking();
+            await currentToken.togglePublicMint();
 
             ethBalance = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
             console.log("After Deploy Balance" + ethBalance);
@@ -49,12 +94,18 @@ if (true == true)
             let messageHash = ethers.utils.solidityKeccak256(['string'], [message]);
             let signature = await adminWallet.signMessage(ethers.utils.arrayify(messageHash2));
 
-            console.log("Address")
-            console.log(adminWallet.address)
-            console.log("Message Hash")
-            console.log(messageHash)
-            console.log("Signature")
-            console.log(signature)
+            // console.log("Address")
+            // console.log(adminWallet.address)
+            // console.log("Message Hash")
+            // console.log(messageHash)
+            // console.log("Signature")
+            // console.log(signature)
+        });
+
+        it("New Signer", async function () {
+            const [adminWallet, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
+
+            let signature = await currentToken.setSignerAddress(adminWallet.address);
         });
 
         it("Mints a token from Dapp", async function () {
@@ -71,12 +122,6 @@ if (true == true)
             const [adminWallet, userWallet] = await ethers.getSigners();
             const timestamp = Date.now();
 
-            let signature1 = await adminWallet.signMessage(ethers.utils.arrayify(messageHash1));
-            let signature2 = await adminWallet.signMessage(ethers.utils.arrayify(messageHash2));
-            console.log("messageHash2: " + messageHash2)
-            console.log("singature2: " + signature2)
-            let messageHash3 = ethers.utils.solidityKeccak256(['string'], [message1]);
-
             //Step 4: Turn on Sales
             const PreMintCount = await currentToken.balanceOf(adminWallet.address)
             const totalSupply = await currentToken.totalSupply();
@@ -85,7 +130,7 @@ if (true == true)
 
             for (let index = 0; index < PurchaseArray.length; index++) {
                 const element = PurchaseArray[index];
-                await currentToken.openMonsterMint(messageHash3, element.amount, { value: ethers.utils.parseEther(element.value) });
+                await currentToken.openMonsterMint(element.amount, { value: ethers.utils.parseEther(element.value) });
                 TotalAmount = TotalAmount + element.amount;
             }
 
@@ -95,26 +140,68 @@ if (true == true)
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
         });
 
-
-
         it("Mints a presale token from Dapp", async function () {
 
             //Enable Mint Whitelist
-            await currentToken.togglePresaleCooking();
-            await currentToken.togglePresaleCooking();
+            await currentToken.togglePresaleMint();
+            await currentToken.togglePresaleMint();
 
             const [adminWallet, userWallet] = await ethers.getSigners();
 
-            let signature1 = await adminWallet.signMessage(ethers.utils.arrayify(messageHash1));
-            let signature2 = await userWallet.signMessage(ethers.utils.arrayify(messageHash2));
-            console.log("messageHash2: " + messageHash2)
-            console.log("singature2: " + signature2)
-            let messageHash3 = ethers.utils.solidityKeccak256(['string'], [message1]);
             const totalSupply = await currentToken.totalSupply();
             //await currentToken.afterHoursMonsterMint(false, messageHash1, signature1, messageHash2, signature2, 2, { value: ethers.utils.parseEther("0.11") });
-            await currentToken.afterHoursMonsterMint(messageHash3, 10, { value: ethers.utils.parseEther("0.55") });
+            await currentToken.afterHoursMonsterMint(
+                1,
+                1,
+                couponExample[0]
+                , { value: ethers.utils.parseEther("0.55") });
+
+            await currentToken.afterHoursMonsterMint(
+                1,
+                1,
+                couponExample[0]
+                , { value: ethers.utils.parseEther("0.55") });
             const totalSupply2 = await currentToken.totalSupply();
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
+        });
+
+        it("Stops Mint of a presale token from Dapp due to Mint quantity can't be greater than claimable", async function () {
+
+            //Enable Mint Whitelist
+            //await currentToken.togglePresaleMint();
+            // await currentToken.togglePresaleMint();
+
+            await expect(currentToken.afterHoursMonsterMint(2, 1,
+                couponExample[0]
+                , {
+                    value: ethers.utils.parseEther("0.55")
+                })).to.be.revertedWith("Mint quantity can't be greater than claimable");
+        });
+
+        it("Stops Mint of a presale token from Dapp due to invalid Claim Amount", async function () {
+
+            //Enable Mint Whitelist
+            //await currentToken.togglePresaleMint();
+            // await currentToken.togglePresaleMint();
+
+            await expect(currentToken.afterHoursMonsterMint(1, 5,
+                couponExample[0]
+                , {
+                    value: ethers.utils.parseEther("0.55")
+                })).to.be.revertedWith("Invalid Monster Pass");
+        });
+
+        it("Stops Mint of a presale token from Dapp due to invalid Pass", async function () {
+
+            //Enable Mint Whitelist
+            //await currentToken.togglePresaleMint();
+            // await currentToken.togglePresaleMint();
+
+            await expect(currentToken.afterHoursMonsterMint(1, 5,
+                couponExample[1]
+                , {
+                    value: ethers.utils.parseEther("0.55")
+                })).to.be.revertedWith("Invalid Monster Pass");
         });
 
         it("Will not allow mint over threshold", async function () {
@@ -136,7 +223,7 @@ if (true == true)
 
             for (let index = 0; index < PurchaseArray.length; index++) {
                 const element = PurchaseArray[index];
-                await expect(currentToken.openMonsterMint(messageHash3, element.amount, { value: ethers.utils.parseEther(element.value) })).to.be.revertedWith('Mint amount too large');
+                await expect(currentToken.openMonsterMint(element.amount, { value: ethers.utils.parseEther(element.value) })).to.be.revertedWith('Mint amount too large');
                 TotalAmount = TotalAmount + element.amount;
             }
 
@@ -213,7 +300,7 @@ if (true == true)
         it("Burn Token", async function () {
 
             //Enable Mint Whitelist
-            await currentToken.togglePresaleCooking();
+            await currentToken.togglePresaleMint();
 
             const [adminWallet, userWallet] = await ethers.getSigners();
 

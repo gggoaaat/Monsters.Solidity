@@ -11,22 +11,33 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
-contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
+
+contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
     using Counters for Counters.Counter;
     using ECDSA for bytes32;
     using Strings for uint256;
+
+    struct user {
+        address userAddress;
+        uint8 entries;
+        bool isExist;
+    }
+    // mapping(address => user) public giveAwayAllowance;
+    // mapping(address => uint256) public giveAwayMints;
+    // uint16 public remainingReserved;
 
     Counters.Counter private _tokenSupply;
 
     uint256 public constant MAX_TOKENS = 3333;
     uint256 public mTL = 20;
     uint256 public whitelistmTL = 20;
-    uint256 public tokenPrice = 0.07 ether;
-    uint256 public whitelistTokenPrice = 0.055 ether;
+    uint256 public tokenPrice = 0.05 ether;
+    uint256 public whitelistTokenPrice = 0.0 ether;
     uint256 public maxAfterHoursMonsterMints = 6000;
 
-    bool public publicMintIsOpen  = false;
+    bool public publicMintIsOpen = false;
     bool public privateMintIsOpen = true;
     bool public revealed = false;
 
@@ -35,81 +46,107 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     string public hiddenMetadataUri;
 
     address private _MonsterVault = 0x0000000000000000000000000000000000000000;
+    address private _MonsterSigner = 0x0000000000000000000000000000000000000000;
 
     mapping(address => bool) whitelistedAddresses;
 
-    modifier isWhitelisted(address _address, bytes32 _hash) {
-        bool decoy = keccak256(abi.encodePacked("<(^_^)>")) !=
-            keccak256(
-                abi.encodePacked(
-                    "If you want to help feed the hungry and you can get around the gate go for it. ~Techoshi"
-                )
-            );
+    string public Author = "techoshi.eth";
 
-        if (_hash.length > 0) {
-            require(
-                true,
-                "I'm just wasting your time. We did this offline. ~Techoshi"
-            );
-        }
+    struct MonsterPass {
+        bytes32 r;
+        bytes32 s;
+        uint8 v;
+    }
+
+    function _isVerifiedMonsterPass(
+        bytes32 digest,
+        MonsterPass memory monsterPass
+    ) internal view returns (bool) {
+        address signer = ecrecover(
+            digest,
+            monsterPass.v,
+            monsterPass.r,
+            monsterPass.s
+        );
+        require(signer != address(0), "ECDSA: invalid signature");
+        return signer == _MonsterSigner;
+    }
+
+    modifier isWhitelisted(uint8 amount, MonsterPass memory monsterPass) {
+        bytes32 digest = keccak256(
+            abi.encode(amount, msg.sender)
+        ); // 3
+
+        require(
+            _isVerifiedMonsterPass(digest, monsterPass),
+            "Invalid Monster Pass"
+        ); // 4
         _;
     }
 
     constructor(
         address _vault,
+        address _signer,
         string memory __baseTokenURI,
-        string memory _hiddenMetadataUri
-    ) ERC721("SuitsOnSuits NFT", "SOS") {
+        string memory _hiddenMetadataUri,
+        address[] memory _payees, uint256[] memory _shares
+    ) ERC721("SuitsOnSuits NFT", "SOS")  PaymentSplitter(_payees, _shares) payable {
         _MonsterVault = _vault;
+        _MonsterSigner = _signer;
         _tokenSupply.increment();
-        _safeMint(msg.sender, 0);
+        _tokenSupply.increment();
+        _safeMint(msg.sender, 1);
         _baseTokenURI = __baseTokenURI;
         hiddenMetadataUri = _hiddenMetadataUri;
+        
     }
-
+   
+    function updateSplitter(address[] memory _payees, uint256[] memory _shares) external onlyOwner {
+        //PaymentSplitter(_payees, _shares);
+    }
+    
     function withdraw() external onlyOwner {
         payable(_MonsterVault).transfer(address(this).balance);
     }
 
-    function afterHoursMonsterMint(        
-        bytes32 mThree,        
-        uint256 amount
-    )
-        external
-        payable     
-        isWhitelisted(msg.sender, mThree)
-    {
+    function afterHoursMonsterMint(
+        uint8 quantity, //Whitelist,
+        uint8 claimable,
+        MonsterPass memory monsterPass
+    ) external payable isWhitelisted(claimable, monsterPass) {
+        require(
+            whitelistTokenPrice * quantity <= msg.value,
+            "Not enough ether sent"
+        );
+
         uint256 supply = _tokenSupply.current();
 
         require(
-            supply + amount < maxAfterHoursMonsterMints,
+            supply + quantity <= maxAfterHoursMonsterMints,
             "Not enough free mints remaining"
         );
-        require(
-            whitelistTokenPrice * amount <= msg.value,
-            "Not enough ether sent"
-        );
-        require(amount <= whitelistmTL, "Mint amount too large");
 
-        for (uint256 i = 0; i < amount; i++) {
+        require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
+        require(quantity <= claimable, "Mint quantity can't be greater than claimable");
+        require(quantity > 0, "Mint quantity must be greater than zero");
+        require(quantity <= whitelistmTL, "Mint quantity too large");
+        
+
+        // giveAwayMints[msg.sender] += quantity;        
+
+        for (uint256 i = 0; i < quantity; i++) {
             _tokenSupply.increment();
             _safeMint(msg.sender, supply + i);
         }
+
     }
 
-    function openMonsterMint(       
-        bytes32 mThree,        
-        uint256 quantity
-    )
-        external
-        payable
-        isWhitelisted(msg.sender, mThree)
-    {
+    function openMonsterMint(uint256 quantity) external payable {
+        require(tokenPrice * quantity <= msg.value, "Not enough ether sent");
         uint256 supply = _tokenSupply.current();
 
         require(quantity <= mTL, "Mint amount too large");
-        require(supply + quantity < MAX_TOKENS, "Not enough tokens remaining");
-        require(tokenPrice * quantity <= msg.value, "Not enough ether sent");
+        require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
 
         for (uint256 i = 0; i < quantity; i++) {
             _tokenSupply.increment();
@@ -119,7 +156,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
 
     function monsterMint(address to, uint256 amount) external onlyOwner {
         uint256 supply = _tokenSupply.current();
-        require(supply + amount < MAX_TOKENS, "Not enough tokens remaining");
+        require(supply + amount <= MAX_TOKENS, "Not enough tokens remaining");
         for (uint256 i = 0; i < amount; i++) {
             _tokenSupply.increment();
             _safeMint(to, supply + i);
@@ -162,16 +199,16 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
         maxAfterHoursMonsterMints = amount;
     }
 
-    function toggleCooking() external onlyOwner {
+    function togglePublicMint() external onlyOwner {
         publicMintIsOpen = !publicMintIsOpen;
     }
 
-    function togglePresaleCooking() external onlyOwner {
+    function togglePresaleMint() external onlyOwner {
         privateMintIsOpen = !privateMintIsOpen;
     }
 
     function totalSupply() public view returns (uint256) {
-        return _tokenSupply.current();
+        return _tokenSupply.current() - 1;
     }
 
     function setBaseURI(string memory newBaseURI) external onlyOwner {
@@ -186,7 +223,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
         return _baseTokenURI;
     }
 
-    receive() external payable {}
+    //receive() external payable {}
 
     function setBaseExtension(string memory _baseExtension) public onlyOwner {
         baseExtension = _baseExtension;
@@ -242,4 +279,10 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage {
     {
         hiddenMetadataUri = _hiddenMetadataUri;
     }
+
+    function setSignerAddress(address newSigner) external onlyOwner {
+        _MonsterSigner = newSigner;
+    }
+
+
 }
