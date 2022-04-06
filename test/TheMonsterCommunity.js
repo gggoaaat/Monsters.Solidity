@@ -35,7 +35,7 @@ if (true == true)
             let ethBalance = ethers.utils.formatEther(await ethers.provider.getBalance(owner.address));
             console.log("Start Balance: " + ethBalance);
 
-            const MonstersCommunity = await ethers.getContractFactory("SuitsOnSuits");
+            const MonstersCommunity = await ethers.getContractFactory("TheMonsterCommunity");
             currentToken = await MonstersCommunity.deploy(
                 '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
                 '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a',
@@ -116,7 +116,7 @@ if (true == true)
                 { amount: 18, value: "7" },
                 // { amount: 5, value: "0.35" },
                 // { amount: 10, value: "0.7" },
-                //{ amount: 100, value: "7" }                
+                //{ amount: 100, value: "7" }
             ];
 
             const [adminWallet, userWallet] = await ethers.getSigners();
@@ -165,11 +165,34 @@ if (true == true)
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
         });
 
+        it("Can't Mint with Claim off", async function () {
+
+            //Disable Mint Whitelist
+            await currentToken.togglePresaleMint();
+
+            await expect(currentToken.afterHoursMonsterMint(1, 1,
+                couponExample[0]
+                , {
+                    value: ethers.utils.parseEther("0.55")
+                })).to.be.revertedWith("Claim Mint Closed");
+        });
+
+        it("Can't Mint with Public off", async function () {
+
+            //Disable Mint Whitelist
+            await currentToken.togglePublicMint();
+
+            await expect(currentToken.openMonsterMint(1,
+                {
+                    value: ethers.utils.parseEther("0.55")
+                })).to.be.revertedWith("Public Mint Closed");
+        });
+
         it("Stops Mint of a presale token from Dapp due to Mint quantity can't be greater than claimable", async function () {
 
             //Enable Mint Whitelist
             //await currentToken.togglePresaleMint();
-            // await currentToken.togglePresaleMint();
+            await currentToken.togglePresaleMint();
 
             await expect(currentToken.afterHoursMonsterMint(2, 1,
                 couponExample[0]
@@ -177,6 +200,7 @@ if (true == true)
                     value: ethers.utils.parseEther("0.55")
                 })).to.be.revertedWith("Mint quantity can't be greater than claimable");
         });
+        
 
         it("Stops Mint of a presale token from Dapp due to invalid Claim Amount", async function () {
 
@@ -206,6 +230,9 @@ if (true == true)
 
         it("Will not allow mint over threshold", async function () {
 
+
+            await currentToken.togglePublicMint();
+            
             const PurchaseArray = [
                 { amount: 101, value: "7.07" }
             ];

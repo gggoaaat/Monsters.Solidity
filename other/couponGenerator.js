@@ -9,8 +9,8 @@ const {
     bufferToHex,
 } = require("ethereumjs-utils");
 
-let signerPvtKey1 = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
-
+//let signerPvtKey1 = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+let signerPvtKey1 = '0x009f83b09a5faf68ce4fe9bed00f026026a3ae3ef59ff13e6a7ec9673bbdb717'
 
 const signerPvtKey = Buffer.from(signerPvtKey1.substring(2,66), "hex");
 
@@ -22,6 +22,9 @@ async function getClaimCodes() {
 
     let presaleAddresses = [
         { address : '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a', qty : 8},
+        { address : '0xc664F3f1C7170A9C213F56456a83f54E26FF310f', qty : 12},
+        { address : '0xf886B127d4E381E7619d2Af1617476fef0d04F8c', qty : 7},
+        { address : '0x36Fa3E52D58A7401Be46353F50667FBf931e4F42', qty : 5},
         { address : '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', qty : 1},
         { address : '0xf886b127d4e381e7619d2af1617476fef0d04f8c', qty : 39},        
         { address : '0xb4e9de72dba27364ca01fb6a8228c2ec89b375a9', qty : 2},

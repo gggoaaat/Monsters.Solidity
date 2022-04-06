@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
 
-contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
+contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
     using Counters for Counters.Counter;
     using ECDSA for bytes32;
     using Strings for uint256;
@@ -35,7 +35,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
     uint256 public whitelistmTL = 20;
     uint256 public tokenPrice = 0.05 ether;
     uint256 public whitelistTokenPrice = 0.0 ether;
-    uint256 public maxAfterHoursMonsterMints = 6000;
+    uint256 public maxAfterHoursMonsterMints = 900;
 
     bool public publicMintIsOpen = false;
     bool public privateMintIsOpen = true;
@@ -90,7 +90,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
         string memory __baseTokenURI,
         string memory _hiddenMetadataUri,
         address[] memory _payees, uint256[] memory _shares
-    ) ERC721("SuitsOnSuits NFT", "SOS")  PaymentSplitter(_payees, _shares) payable {
+    ) ERC721("The Monster Community", "TMC")  PaymentSplitter(_payees, _shares) payable {
         _MonsterVault = _vault;
         _MonsterSigner = _signer;
         _tokenSupply.increment();
@@ -121,11 +121,14 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
 
         uint256 supply = _tokenSupply.current();
 
+        
+
         require(
             supply + quantity <= maxAfterHoursMonsterMints,
             "Not enough free mints remaining"
         );
 
+        require(privateMintIsOpen == true, "Claim Mint Closed");
         require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
         require(quantity <= claimable, "Mint quantity can't be greater than claimable");
         require(quantity > 0, "Mint quantity must be greater than zero");
@@ -144,7 +147,7 @@ contract SuitsOnSuits is Ownable, ERC721, ERC721URIStorage, PaymentSplitter {
     function openMonsterMint(uint256 quantity) external payable {
         require(tokenPrice * quantity <= msg.value, "Not enough ether sent");
         uint256 supply = _tokenSupply.current();
-
+        require(publicMintIsOpen == true, "Public Mint Closed");
         require(quantity <= mTL, "Mint amount too large");
         require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
 
