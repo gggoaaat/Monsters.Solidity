@@ -29,10 +29,11 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
     // uint16 public remainingReserved;
 
     Counters.Counter private _tokenSupply;
+    Counters.Counter private _freeSupply;
 
     uint256 public constant MAX_TOKENS = 3333;
-    uint256 public mTL = 20;
-    uint256 public whitelistmTL = 20;
+    uint256 public publicMintMaxLimit = 50;
+    uint256 public whitelistMintMaxLimit = 50;
     uint256 public tokenPrice = 0.05 ether;
     uint256 public whitelistTokenPrice = 0.0 ether;
     uint256 public maxAfterHoursMonsterMints = 900;
@@ -51,6 +52,7 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
     mapping(address => bool) whitelistedAddresses;
 
     string public Author = "techoshi.eth";
+    string public MonsterTeam = "kuma420.eth, samadoption.eth, softich.eth";
 
     struct MonsterPass {
         bytes32 r;
@@ -68,6 +70,7 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
             monsterPass.r,
             monsterPass.s
         );
+
         require(signer != address(0), "ECDSA: invalid signature");
         return signer == _MonsterSigner;
     }
@@ -75,7 +78,7 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
     modifier isWhitelisted(uint8 amount, MonsterPass memory monsterPass) {
         bytes32 digest = keccak256(
             abi.encode(amount, msg.sender)
-        ); // 3
+        );
 
         require(
             _isVerifiedMonsterPass(digest, monsterPass),
@@ -119,26 +122,23 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
             "Not enough ether sent"
         );
 
-        uint256 supply = _tokenSupply.current();
-
-        
-
-        require(
-            supply + quantity <= maxAfterHoursMonsterMints,
-            "Not enough free mints remaining"
-        );
+        uint256 supply = _tokenSupply.current();        
 
         require(privateMintIsOpen == true, "Claim Mint Closed");
-        require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
+        require(quantity + (supply-1) <= MAX_TOKENS, "Not enough tokens remaining");
         require(quantity <= claimable, "Mint quantity can't be greater than claimable");
         require(quantity > 0, "Mint quantity must be greater than zero");
-        require(quantity <= whitelistmTL, "Mint quantity too large");
-        
+        require(quantity <= whitelistMintMaxLimit, "Mint quantity too large");
+        require(
+            _freeSupply.current() + quantity <= maxAfterHoursMonsterMints,
+            "Not enough free mints remaining"
+        );
 
         // giveAwayMints[msg.sender] += quantity;        
 
         for (uint256 i = 0; i < quantity; i++) {
             _tokenSupply.increment();
+            _freeSupply.increment();
             _safeMint(msg.sender, supply + i);
         }
 
@@ -148,8 +148,8 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
         require(tokenPrice * quantity <= msg.value, "Not enough ether sent");
         uint256 supply = _tokenSupply.current();
         require(publicMintIsOpen == true, "Public Mint Closed");
-        require(quantity <= mTL, "Mint amount too large");
-        require(quantity + supply <= MAX_TOKENS, "Not enough tokens remaining");
+        require(quantity <= publicMintMaxLimit, "Mint amount too large");
+        require(quantity + (supply-1) <= MAX_TOKENS, "Not enough tokens remaining");
 
         for (uint256 i = 0; i < quantity; i++) {
             _tokenSupply.increment();
@@ -159,7 +159,7 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
 
     function monsterMint(address to, uint256 amount) external onlyOwner {
         uint256 supply = _tokenSupply.current();
-        require(supply + amount <= MAX_TOKENS, "Not enough tokens remaining");
+        require((supply-1) + amount <= MAX_TOKENS, "Not enough tokens remaining");
         for (uint256 i = 0; i < amount; i++) {
             _tokenSupply.increment();
             _safeMint(to, supply + i);
@@ -176,21 +176,21 @@ contract TheMonsterCommunity is Ownable, ERC721, ERC721URIStorage, PaymentSplitt
     ) external onlyOwner {
         whitelistTokenPrice = newWhitelistTokenPrice;
         tokenPrice = newPrice;
-        mTL = setopenMonsterMintLimit;
-        whitelistmTL = setafterHoursMonsterMintLimit;
+        publicMintMaxLimit = setopenMonsterMintLimit;
+        whitelistMintMaxLimit = setafterHoursMonsterMintLimit;
         publicMintIsOpen = setPublicMintState;
         privateMintIsOpen = setPrivateMintState;
     }
 
     function setTransactionMintLimit(uint256 newMintLimit) external onlyOwner {
-        mTL = newMintLimit;
+        publicMintMaxLimit = newMintLimit;
     }
 
     function setWhitelistTransactionMintLimit(uint256 newprivateMintLimit)
         external
         onlyOwner
     {
-        whitelistmTL = newprivateMintLimit;
+        whitelistMintMaxLimit = newprivateMintLimit;
     }
 
     function setTokenPrice(uint256 newPrice) external onlyOwner {

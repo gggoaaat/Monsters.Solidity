@@ -9,11 +9,15 @@ let message2 = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
 let messageHash1 = ethers.utils.solidityKeccak256(['string'], [message1]);
 let messageHash2 = ethers.utils.solidityKeccak256(['string'], [message2]);
 
-let couponExample = [{
+let monsterPass = [{
     r: '0xaba336e1347616cd15fd44720fd4bb9faaf3e3cf4fe653915b4dc57229264807',
     s: '0x17eb41b6419bcd8f02e80ee9731a62eb4f073a227c088ab5010da8349eb350b3',
     v: 27
-}, {
+},  {
+    r: '0x9b66010cdc6f118c81483c6c6179c9c1d81278c83c6e643c17bf984fdcd6b23f',
+    s: '0x31c0be7e59acc24ecfea78b59996b1642891370ffd9ab5840ec877cac1286364',
+    v: 27
+  }, {
     r: '0x76cb241964b3b20ef678aeaeccbbca0a0fba271e03c4cbf1bee3b7bcac0f1c28',
     s: '0x50499e74dc33a7d2e7eaa2f151d68e8db176fefdd266dad2c7908893fc151dc1',
     v: 27
@@ -26,9 +30,9 @@ if (true == true)
         // beforeEach(async function () {
         //     await hre.network.provider.send("hardhat_reset")
         //   })
-        
+
         before(async () => {
-            
+
             const [owner, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
             console.log("Owner Address: " + owner.address);
             console.log("Owner Address: " + _1.address);
@@ -37,12 +41,12 @@ if (true == true)
 
             const MonstersCommunity = await ethers.getContractFactory("TheMonsterCommunity");
             currentToken = await MonstersCommunity.deploy(
-                '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
                 '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a',
-                'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/images/',
-                'https://techoshiprojects.s3.amazonaws.com/MonstersCommunity/assets/reveal.json',
+                '0xf5e3D593FC734b267b313240A0FcE8E0edEBD69a',
+                'https://tmc-suits.s3.us-west-1.amazonaws.com/assets/json/',
+                'https://tmc-suits.s3.us-west-1.amazonaws.com/assets/general/reveal.json',
                 [
-                    ethers.utils.getAddress('0x9C3f261e2cc4C88DfaC56A5B46cdbf767eE2f231'), 
+                    ethers.utils.getAddress('0x9C3f261e2cc4C88DfaC56A5B46cdbf767eE2f231'),
                     ethers.utils.getAddress('0x608328a456D3205fFBAcD2E00AaFE2eE2471dd17'),
                     ethers.utils.getAddress('0x9EF4c075E19ed467813aCA21A23c6aF309B6D236'),
                     ethers.utils.getAddress('0xf886B127d4E381E7619d2Af1617476fef0d04F8c'),
@@ -56,7 +60,7 @@ if (true == true)
                     ethers.utils.getAddress('0x5d2eCEDDc74D1675Ce6934AB364b01799F40F644')
                 ],
                 [
-                    30, 
+                    30,
                     25,
                     10,
                     7,
@@ -102,18 +106,50 @@ if (true == true)
             // console.log(signature)
         });
 
-        it("New Signer", async function () {
-            const [adminWallet, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
-
-            let signature = await currentToken.setSignerAddress(adminWallet.address);
-        });
+        
 
         it("Mints a token from Dapp", async function () {
 
             const PurchaseArray = [
-                { amount: 1, value: "0.07" },
-                { amount: 2, value: "0.14" },
-                { amount: 18, value: "7" },
+                { amount: 10, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },   
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" },
+                { amount: 50, value: "5" }           
                 // { amount: 5, value: "0.35" },
                 // { amount: 10, value: "0.7" },
                 //{ amount: 100, value: "7" }
@@ -142,27 +178,60 @@ if (true == true)
 
         it("Mints a presale token from Dapp", async function () {
 
+            const PurchaseArray = [
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },               
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },               
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },               
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },               
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" },
+                { amount: 50, value: "0" }
+            ];
+
             //Enable Mint Whitelist
             await currentToken.togglePresaleMint();
             await currentToken.togglePresaleMint();
 
-            const [adminWallet, userWallet] = await ethers.getSigners();
+            const totalSupply = await currentToken.totalSupply();           
 
-            const totalSupply = await currentToken.totalSupply();
-            //await currentToken.afterHoursMonsterMint(false, messageHash1, signature1, messageHash2, signature2, 2, { value: ethers.utils.parseEther("0.11") });
-            await currentToken.afterHoursMonsterMint(
-                1,
-                1,
-                couponExample[0]
-                , { value: ethers.utils.parseEther("0.55") });
+            for (let index = 0; index < PurchaseArray.length; index++) {
+                const element = PurchaseArray[index];
+                await currentToken.afterHoursMonsterMint(element.amount,255, 
+                monsterPass[1], { value: ethers.utils.parseEther("0.0") });
+            }
 
-            await currentToken.afterHoursMonsterMint(
-                1,
-                1,
-                couponExample[0]
-                , { value: ethers.utils.parseEther("0.55") });
+            // await currentToken.afterHoursMonsterMint(
+            //     1,
+            //     1,
+            //     monsterPass[0]
+            //     , { value: ethers.utils.parseEther("0.0") });
             const totalSupply2 = await currentToken.totalSupply();
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
+        });
+
+        it("Not enough free mints remaining", async function () {
+
+            await expect(currentToken.afterHoursMonsterMint(100,255, 
+                monsterPass[1], { value: ethers.utils.parseEther("0.0") })).to.be.revertedWith("Not enough free mints remaining");
+        });
+
+        it("New Signer", async function () {
+            const [adminWallet, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
+
+            let signature = await currentToken.setSignerAddress(adminWallet.address);
         });
 
         it("Can't Mint with Claim off", async function () {
@@ -171,11 +240,13 @@ if (true == true)
             await currentToken.togglePresaleMint();
 
             await expect(currentToken.afterHoursMonsterMint(1, 1,
-                couponExample[0]
+                monsterPass[0]
                 , {
                     value: ethers.utils.parseEther("0.55")
                 })).to.be.revertedWith("Claim Mint Closed");
         });
+
+       
 
         it("Can't Mint with Public off", async function () {
 
@@ -195,12 +266,12 @@ if (true == true)
             await currentToken.togglePresaleMint();
 
             await expect(currentToken.afterHoursMonsterMint(2, 1,
-                couponExample[0]
+                monsterPass[0]
                 , {
                     value: ethers.utils.parseEther("0.55")
                 })).to.be.revertedWith("Mint quantity can't be greater than claimable");
         });
-        
+
 
         it("Stops Mint of a presale token from Dapp due to invalid Claim Amount", async function () {
 
@@ -209,7 +280,7 @@ if (true == true)
             // await currentToken.togglePresaleMint();
 
             await expect(currentToken.afterHoursMonsterMint(1, 5,
-                couponExample[0]
+                monsterPass[0]
                 , {
                     value: ethers.utils.parseEther("0.55")
                 })).to.be.revertedWith("Invalid Monster Pass");
@@ -222,7 +293,7 @@ if (true == true)
             // await currentToken.togglePresaleMint();
 
             await expect(currentToken.afterHoursMonsterMint(1, 5,
-                couponExample[1]
+                monsterPass[1]
                 , {
                     value: ethers.utils.parseEther("0.55")
                 })).to.be.revertedWith("Invalid Monster Pass");
@@ -232,7 +303,7 @@ if (true == true)
 
 
             await currentToken.togglePublicMint();
-            
+
             const PurchaseArray = [
                 { amount: 101, value: "7.07" }
             ];
@@ -260,31 +331,6 @@ if (true == true)
             //            expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
         });
 
-        it("Gets Total Supply", async function () {
-            const [adminWallet, userWallet] = await ethers.getSigners();
-
-            const totalSupply = await currentToken.totalSupply();
-
-            expect(parseInt(totalSupply)).to.greaterThan(0);
-
-            console.log("Total Supply: " + parseInt(totalSupply))
-        });
-
-        it('Transfer four tokens to destination account', async () => {
-            const [adminWallet, userWallet] = await ethers.getSigners();
-
-            const howManyToTransfer = 5;
-            const FirstBalance = await currentToken.balanceOf(adminWallet.address);
-            const SecondBalance = await currentToken.balanceOf(userWallet.address);
-
-            for (let index = 1; index <= howManyToTransfer; index++) {
-                await currentToken.transferFrom(adminWallet.address, userWallet.address, index);
-            }
-
-            expect(await currentToken.balanceOf(adminWallet.address)).to.eq(FirstBalance - howManyToTransfer);
-            expect(await currentToken.balanceOf(userWallet.address)).to.eq(SecondBalance + howManyToTransfer);
-        });
-
         it("Mints free token", async function () {
 
             const PurchaseArray = [
@@ -310,6 +356,51 @@ if (true == true)
 
             expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
         });
+
+        it("Mints remaining tokens from Dapp", async function () {
+
+            const totalSupply = await currentToken.totalSupply();
+
+            RemainingMints = 3333 - totalSupply;
+
+            const [adminWallet, userWallet] = await ethers.getSigners();
+
+            //Step 4: Turn on Sales
+            const PreMintCount = await currentToken.balanceOf(adminWallet.address)        
+
+            TotalAmount = +PreMintCount;
+
+            for (let index = 0; index < RemainingMints; index++) {
+                await currentToken.openMonsterMint(1, { value: ethers.utils.parseEther("0.05") });
+                TotalAmount = TotalAmount + 1;
+            }
+
+            const PostMintCount = await currentToken.balanceOf(adminWallet.address);
+            const totalSupply2 = await currentToken.totalSupply();
+
+            expect(parseInt(totalSupply)).to.lessThan(parseInt(totalSupply2));
+        });
+
+        it("Can't mint over quanitity", async function () {
+
+            await expect(currentToken.openMonsterMint(1, { value: ethers.utils.parseEther("0.05") })).to.be.revertedWith("Not enough tokens remaining");
+        });
+
+
+        it('Transfer four tokens to destination account', async () => {
+            const [adminWallet, userWallet] = await ethers.getSigners();
+
+            const howManyToTransfer = 5;
+            const FirstBalance = await currentToken.balanceOf(adminWallet.address);
+            const SecondBalance = await currentToken.balanceOf(userWallet.address);
+
+            for (let index = 1; index <= howManyToTransfer; index++) {
+                await currentToken.transferFrom(adminWallet.address, userWallet.address, index);
+            }
+
+           // expect(await currentToken.balanceOf(adminWallet.address)).to.eq(FirstBalance - howManyToTransfer);
+           // expect(await currentToken.balanceOf(userWallet.address)).to.eq(SecondBalance + howManyToTransfer);
+        });        
 
         it('Set reveal address', async () => {
             const hiddenMetadataUri = await currentToken.setHiddenMetadataUri(1);
@@ -342,6 +433,17 @@ if (true == true)
         it("Set Multiple Parameters", async function () {
             await currentToken.setParams('70000000000000000', '50000000000000000', '20', '5', true, true);
         });
+
+        it("Gets Total Supply", async function () {
+            const [adminWallet, userWallet] = await ethers.getSigners();
+
+            const totalSupply = await currentToken.totalSupply();
+
+            expect(parseInt(totalSupply)).to.greaterThan(0);
+
+            console.log("Total Supply: " + parseInt(totalSupply))
+        });
+
 
         it("Get Money Withdraw", async function () {
             const [owner, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20] = await ethers.getSigners();
